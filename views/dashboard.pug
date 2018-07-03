@@ -1,5 +1,15 @@
 extend layout
 
+block head
+    script(type="text/javascript",  src="http://localhost:3001/socket.io/socket.io.js")
+    script(type="text/javascript").
+        var socket;
+        (function(){
+            // ソケット通信が開始される
+            socket = io.connect("http://localhost:3001");
+
 block content
-    h1 ここはダッシュボード
+    h1= title
+    p Welcome to #{title}
     p ぶらさがれ…
+    a.timer 00:00:00
