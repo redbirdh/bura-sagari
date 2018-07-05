@@ -21,6 +21,7 @@ io.sockets.on('connection', function(socket) {
 });
 // ========================================================
 
+var state = {"sign": "stop"};
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -38,7 +39,21 @@ var dashboardRouter = require('./routes/dashboard');
 var switchRouter = require('./routes/switch');
 app.use('/', indexRouter);
 app.use('/dashboard', dashboardRouter);
-app.use('/switch/:state?', switchRouter.toggle);
+app.use('/switch/:state?', (req, res, next) => {
+    if(req.params.state == "start") {
+        res.send("ok, start");
+        state["sign"] = 'start';
+    }else if(req.params.state == "finish") {
+        state["sign"] = 'finish';
+        res.send("ok, finish");
+    }
+});
+
+app.get('/getState', function(req, res){
+    console.log(state["sign"]);
+    res.writeHead(200, {"Content-Type": "application/json"});
+    res.end(JSON.stringify({"state":state}));
+});
 
 
 // catch 404 and forward to error handler

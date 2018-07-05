@@ -1,15 +1,54 @@
 extend layout
 
 block head
-    script(type="text/javascript",  src="http://localhost:3001/socket.io/socket.io.js")
-    script(type="text/javascript").
-        var socket;
-        (function(){
-            // ソケット通信が開始される
-            socket = io.connect("http://localhost:3001");
+    script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js")
+    script(type="text/javascript",  src="/javascripts/update.js")
+    script.
+        console.log("pug : " + hanging);
+
+        var timer = null;
+
+        var startTime;
+        var elapsedTime = 0;
+        var timerId;
+
+        function updateTimetText(){
+            console.log(elapsedTime);
+             var m = Math.floor(elapsedTime / 60000);
+             var s = Math.floor(elapsedTime % 60000 / 1000);
+             var ms = elapsedTime % 1000;
+             m = ('0' + m).slice(-2); 
+             s = ('0' + s).slice(-2);
+             ms = ('0' + ms).slice(-3);
+             timer.innerHTML = m + ':' + s + ':' + ms;
+         }
+
+        //再帰的に使える用の関数
+        function countUp(){
+            if (hanging == true){
+                timerId = setTimeout(function(){
+                    elapsedTime = Date.now() - startTime;
+                    updateTimetText()
+                    countUp();
+                },10);
+            }
+        }
+
+        function start(){
+            timer = document.getElementById('timer');
+            startTime = Date.now();
+            countUp();
+        }
+
+        function finish(){
+            clearTimeout(timerId);
+        }
+
 
 block content
     h1= title
     p Welcome to #{title}
     p ぶらさがれ…
-    a.timer 00:00:00
+    a#timer 00:00:000
+    p#statusBar waiting...
+    img(src="/images/hissi_woman.png")
