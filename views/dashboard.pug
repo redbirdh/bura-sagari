@@ -4,24 +4,47 @@ block head
     script(src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js")
     script(type="text/javascript",  src="/javascripts/update.js")
     script.
-        console.log("pug : " + hanging);
+        // Hue関連
+        const request1 = new XMLHttpRequest();
+        const request2 = new XMLHttpRequest();
+        const request3 = new XMLHttpRequest();
+        const request4 = new XMLHttpRequest();
+        var hue_config;
+        var hue_json_data_on = {
+            on: true,
+            bri: 255,
+            sat: 255,
+            hue: 46000
+        };
+        var hue_json_data_off = {
+            on: true,
+            bri: 255,
+            sat: 100,
+            hue: 14000
+        };
 
+        // 音関連
+        var soundOfStart = new Audio();
+        soundOfStart.src = "/audios/trumpet.mp3";
+        var soundOfFinish = new Audio();
+        soundOfFinish.src = "/audios/tin.mp3";
+        var sound_config;
+
+        // タイマー表示関連
         var timer = null;
-
         var startTime;
         var elapsedTime = 0;
         var timerId;
 
         function updateTimetText(){
-            console.log(elapsedTime);
-             var m = Math.floor(elapsedTime / 60000);
-             var s = Math.floor(elapsedTime % 60000 / 1000);
-             var ms = elapsedTime % 1000;
-             m = ('0' + m).slice(-2); 
-             s = ('0' + s).slice(-2);
-             ms = ('000' + ms).slice(-3)[0];
-             timer.innerHTML = m + ':' + s + ':' + ms;
-         }
+            var m = Math.floor(elapsedTime / 60000);
+            var s = Math.floor(elapsedTime % 60000 / 1000);
+            var ms = elapsedTime % 1000;
+            m = ('0' + m).slice(-2); 
+            s = ('0' + s).slice(-2);
+            ms = ('000' + ms).slice(-3)[0];
+            timer.innerHTML = m + ':' + s + ':' + ms;
+        }
 
         //再帰的に使える用の関数
         function countUp(){
@@ -37,11 +60,53 @@ block head
         function start(){
             timer = document.getElementById('timer');
             startTime = Date.now();
+            hue_config = document.getElementById("hue");
+            sound_config = document.getElementById("sound");
+            if ( hue_config.checked ) {
+                hue_on();
+            }
+            if ( sound_config.checked ) {
+                soundOfStart.play();
+            }
             countUp();
         }
 
         function finish(){
             clearTimeout(timerId);
+            if ( hue_config.checked ) {
+                hue_off();
+            }
+            if ( sound_config.checked ) {
+                soundOfFinish.play();
+            }
+        }
+
+        // Hueの設定
+        var hue_on = () => {
+            console.log("hue on");
+            // ======
+            request1.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/5/state');
+            request1.send(JSON.stringify(hue_json_data_on));
+            request2.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/6/state');
+            request2.send(JSON.stringify(hue_json_data_on));
+            request3.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/9/state');
+            request3.send(JSON.stringify(hue_json_data_on));
+            request4.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/11/state');
+            request4.send(JSON.stringify(hue_json_data_on));
+            // ======
+        }
+        var hue_off = () => {
+            console.log("hue off");
+            // ======
+            request1.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/5/state');
+            request1.send(JSON.stringify(hue_json_data_off));
+            request2.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/6/state');
+            request2.send(JSON.stringify(hue_json_data_off));
+            request3.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/9/state');
+            request3.send(JSON.stringify(hue_json_data_off));
+            request4.open("PUT", 'http://172.20.11.100/api/H7MIM0AuwQEWFGEOZMoqUeSJhqKbI65zS9zfEOMu/lights/11/state');
+            request4.send(JSON.stringify(hue_json_data_off));
+            // ======
         }
 
 
@@ -52,3 +117,20 @@ block content
     a#timer 00:00:0
     p#statusBar waiting...
     img(src="/images/hissi_woman.png")
+    p.config
+        | Hue連動:
+        label
+            input#hue(type="radio" name="hue" value="on")
+            | する
+        label
+            input(type="radio" name="hue" value="off" checked)
+            | しない
+    p.config
+        | サウンドエフェクツ:
+        label
+            input#sound(type="radio" name="sound" value="on")
+            | あり
+        label
+            input(type="radio" name="sound" value="off" checked)
+            | なし
+
