@@ -7,3 +7,8 @@ first commit
 
 ### GET /switch/(start | finish)
 タイマーのトリガー
+
+### 起動コマンド
+`nohup node app.js > out.log 2> error.log &`
+
+常時バックグラウンドで起動．標準出力とエラー出力も出す.
